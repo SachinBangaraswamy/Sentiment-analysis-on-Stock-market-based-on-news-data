@@ -6,4 +6,4 @@
 
 ## This repository consists of:
 1) RMD file which has all the necessary R code for different ML models that I used in classification
-2) Data file which has downloaded from kaggle
+2) Data file which was downloaded from kaggle
