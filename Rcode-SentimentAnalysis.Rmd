@@ -1,6 +1,6 @@
 ---
-title: "BUAN6356_Project"
-author: "Group 5"
+title: "Sentiment Analysis Project"
+author: "Sachin Bangaraswamy"
 date: "11/04/2021"
 output:
   word_document: default
