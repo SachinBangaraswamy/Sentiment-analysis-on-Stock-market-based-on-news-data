@@ -1,0 +1,904 @@
+---
+title: "BUAN6356_Project"
+author: "Group 5"
+date: "11/04/2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install required packages
+```{r Install required packages}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tm, SnowballC, wordcloud,RcolorBrewer, syuzhet,ggplo2, rJava,RWeka,magrittr,Matrix,xgboost,ROCR,lubridate, read, plyr, caret )
+search()
+```
+```{r Data load}
+# Read the file containing Postive and Negative terms
+positive_terms <- read_csv("positive_sentiment1.csv")
+positive_terms = as.character(positive_terms$word)
+
+negative_terms <- read_csv("negative_sentiment.csv")
+negative_terms = as.character(negative_terms$word)
+```
+## Data cleaning
+```{r Data Cleaning}
+## Generating score for year 2008
+
+data.df <- read.csv("Dataset_Combined1.csv")
+data1 <- data.df[c(1:101),] 
+text <- data1$Merge_news
+
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score1 = count(p_extract)
+n_score1 = count(n_extract)
+count(p_score1$freq)
+count(n_score1$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score1$freq) - count(n_score1$freq)
+
+sentiment_2008 = sentiment
+
+print(sentiment_2008)
+```
+
+```{r 2009}
+## Generating score for year 2009
+
+data2 <- data.df[c(101:353),] 
+text <- data2$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score2 = count(p_extract)
+n_score2 = count(n_extract)
+count(p_score2$freq)
+count(n_score2$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score2$freq) - count(n_score2$freq)
+
+sentiment_2009 = sentiment
+
+print(sentiment_2009)
+```
+
+```{r 2010}
+## Generating score for year 2010
+
+data3 <- data.df[c(353:605),]    
+text <- data3$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score3 = count(p_extract)
+n_score3 = count(n_extract)
+count(p_score3$freq)
+count(n_score3$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score3$freq) - count(n_score3$freq)
+
+sentiment_2010 = sentiment
+
+print(sentiment_2010)
+```
+
+```{r 2011}
+## Generating score for year 2011
+
+data4 <- data.df[c(605:857),] 
+text <- data4$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score4 = count(p_extract)
+n_score4 = count(n_extract)
+count(p_score4$freq)
+count(n_score4$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score4$freq) - count(n_score4$freq)
+
+sentiment_2011 = sentiment
+
+print(sentiment_2011)
+```
+
+```{r 2012}
+## Generating score for year 2012
+
+data5 <- data.df[c(605:1107),]   
+text <- data5$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score5 = count(p_extract)
+n_score5 = count(n_extract)
+count(p_score5$freq)
+count(n_score5$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score5$freq) - count(n_score5$freq)
+
+sentiment_2012 = sentiment
+
+print(sentiment_2012)
+```
+
+```{r 2013}
+## Generating score for year 2013
+
+data6 <- data.df[c(1107:1359),]   
+text <- data6$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score6 = count(p_extract)
+n_score6 = count(n_extract)
+count(p_score6$freq)
+count(n_score6$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score6$freq) - count(n_score6$freq)
+
+sentiment_2013 = sentiment
+
+print(sentiment_2013)
+```
+
+```{r 2014}
+## Generating score for year 2014
+
+data7 <- data.df[c(1359:1611),]  
+text <- data7$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score7 = count(p_extract)
+n_score7 = count(n_extract)
+count(p_score7$freq)
+count(n_score7$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score7$freq) - count(n_score7$freq)
+
+sentiment_2014 = sentiment
+
+print(sentiment_2014)
+```
+
+```{r 2015}
+## Generating score for year 2015
+
+data8 <- data.df[c(1611:1863),]
+text <- data8$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score8 = count(p_extract)
+n_score8 = count(n_extract)
+count(p_score8$freq)
+count(n_score8$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score8$freq) - count(n_score8$freq)
+
+sentiment_2015 = sentiment
+
+print(sentiment_2015)
+```
+
+```{r 2016}
+## Generating score for year 2016
+
+data9 <- data.df[c(1864:1989),] 
+text <- data9$Merge_news
+# Read the text file from local machine , choose file interactively
+#text <- readLines(file.choose())
+# Load the data as a corpus
+corpus <- Corpus(VectorSource(text))
+
+ #Replacing "/", "@" and "|" with space
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/")
+corpus <- tm_map(corpus, toSpace, "@")
+corpus <- tm_map(corpus, toSpace, "\\|")
+
+# Convert the text to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+# Remove english common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your custom stopwords as a character vector
+corpus <- tm_map(corpus, removeWords, c("the", "and", "for","that","has","from","with","have","are")) 
+# Remove punctuations
+corpus <- tm_map(corpus, removePunctuation)
+# Eliminate extra white spaces
+corpus <- tm_map(corpus, stripWhitespace)
+# Text stemming - which reduces words to their root form
+corpus <- tm_map(corpus, stemDocument)
+# write the tokenizer function 
+ngram_tokenizer = function(x) NGramTokenizer(x, Weka_control(min = 2, max = 3))
+ngram_tokenizer
+# create the term-document matrix.
+tdm = TermDocumentMatrix(corpus,control=list(tokenize = ngram_tokenizer))
+terms = tdm$dimnames$Terms
+
+# To check if any of the positive/negative words in our dictionary are present
+# in the text document. The output is "TRUE" if words match, else "FALSE".
+p = positive_terms %in% terms 
+n = negative_terms %in% terms
+
+# extract the positive/negative words that are present in the text
+p_extract = terms[match(positive_terms, terms)]
+p_extract = p_extract[!is.na(p_extract)]
+
+
+n_extract = terms[match(negative_terms, terms)] 
+n_extract = n_extract[!is.na(n_extract)]
+
+# this code calculates the positivity and the negativity score
+p_score9 = count(p_extract)
+n_score9 = count(n_extract)
+count(p_score9$freq)
+count(n_score9$freq)
+# this code computes the Sentiment score
+sentiment = count(p_score9$freq) - count(n_score9$freq)
+
+sentiment_2016 = sentiment
+
+print(sentiment_2016)
+```
+
+```{r Generate graphs for Sentiment analysis}
+
+#Positive sentiment graph.
+
+x1 <- count(p_score1$freq)
+y1 <- x1$freq
+x2 <- count(p_score2$freq)
+y2 <- x1$freq
+x3 <- count(p_score3$freq)
+y3 <- x3$freq
+x4 <- count(p_score4$freq)
+y4 <- x4$freq
+x5 <- count(p_score5$freq)
+y5 <- x5$freq
+x6 <- count(p_score6$freq)
+y6 <- x6$freq
+x7 <- count(p_score7$freq)
+y7 <- x7$freq
+x8 <- count(p_score8$freq)
+y8 <- x8$freq
+x9 <- count(p_score9$freq)
+y9 <- x9$freq
+Freq_of_positive_words <- c(y1,y2,y3,y4,y5,y6,y7,y8,y9)
+Freq_of_positive_words <- positive.df
+positive.df <- as.numeric(factor(positive.df))
+                 #,p_score3,p_score4,p_score5,p_score6,p_score7,p_score8,p_score9)
+positive.df
+
+Year <- c("2008","2009","2010","2011","2012","2013","2014","2015","2016")
+plot.data <- cbind(Year,positive.df)
+plot3 <- as.data.frame(plot.data)
+
+#barplot(positive.df)
+library(ggplot2)
+library(viridis)
+p <-ggplot(plot3, aes(Year, positive.df))
+p +geom_bar(stat = "identity", position = "dodge") +
+  xlab("Year") + ylab("Positive sentiment") +
+  ggtitle("Positive Sentiment") 
+  
+#Negative sentiment graph.
+a1 <- count(n_score1$freq)
+b1 <- a1$freq
+a2 <- count(n_score2$freq)
+b2 <- a2$freq
+a3 <- count(n_score3$freq)
+b3 <- a3$freq
+a4 <- count(n_score4$freq)
+b4 <- a4$freq
+a5 <- count(n_score5$freq)
+b5 <- a5$freq
+a6 <- count(n_score6$freq)
+b6 <- a6$freq
+a7 <- count(n_score7$freq)
+b7 <- a7$freq
+a8 <- count(n_score8$freq)
+b8 <- a8$freq
+a9 <- count(n_score9$freq)
+b9 <- a9$freq
+Freq_of_negative_words <- c(b1,b2,b3,b4,b5,b6,b7,b8,b9)
+Freq_of_negative_words <- negative.df 
+negative.df <- as.numeric(factor(negative.df))
+                 #,p_score3,p_score4,p_score5,p_score6,p_score7,p_score8,p_score9)
+negative.df
+
+Year <- c("2008","2009","2010","2011","2012","2013","2014","2015","2016")
+plot.data1 <- cbind(Year,negative.df)
+plot4 <- as.data.frame(plot.data1)
+
+#barplot(positive.df)
+library(ggplot2)
+library(viridis)
+p <-ggplot(plot4, aes(Year, negative.df))
+p +geom_bar(stat = "identity", position = "dodge") +
+  xlab("Year") + ylab("Negative sentiment") +
+  ggtitle("Negative Sentiment") 
+new <- data.frame(Year, Freq_of_negative_words, Freq_of_positive_words)  
+```
+
+## Part 2: Building models
+## 1) Logistic regression using XGBoost grading 
+
+```{r xgboost}
+library(tm)
+library(rJava)
+library(RWeka)
+library(magrittr)
+library(Matrix)
+library(xgboost)
+library(ROCR)
+library(ggplot2)
+library(lubridate)
+library(readr)
+
+data <- read_csv("Dataset_Combined.csv")
+# Make 'Date' column a Date object to make train/test splitting easier
+data$Date <- trimws(data$Date)
+data$Date <- data.frame(mdy(data$Date))
+head(data$Date)
+class(data$Date)
+
+# Combine headlines into one text blob for each day
+data$all <- paste(data$Top1, data$Top2, data$Top3, data$Top4, data$Top5, data$Top6,
+                  data$Top7, data$Top8, data$Top9, data$Top10, data$Top11, data$Top12, 
+                  data$Top13, data$Top14, data$Top15, data$Top16, data$Top17, data$Top18,
+                  data$Top19, data$Top20, data$Top21, data$Top22, data$Top23, data$Top24,
+                  data$Top25, sep=' <s> ')
+
+# Get rid of those pesky b's and backslashes
+data$all <- gsub('b"|b\'|\\\\|\\"', "", data$all)
+
+# Get rid of all punctuation except headline separators
+data$all <- gsub("([<>])|[[:punct:]]", "\\1", data$all)
+
+
+# Reduce to only the three columns we need. 
+data <- data[, c('Date', 'Label', 'all')]
+data$Date
+
+options(mc.cores=1)
+
+TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+
+control <- list(
+    tokenize=TrigramTokenizer,
+    bounds = list(global = c(10, 500))
+)
+
+dtm <- Corpus(VectorSource(data$all)) %>%
+    tm_map(removeNumbers) %>%
+    tm_map(stripWhitespace) %>%
+    tm_map(content_transformer(tolower)) %>%
+    DocumentTermMatrix(control=control)
+
+has_tokens <- grepl("<s>", colnames(as.matrix(dtm)))
+
+split_index <- data$Date <= '2014-12-31'
+
+xtrain <- as.matrix(dtm)[split_index, !has_tokens]
+ytrain <- data$Label[split_index]
+
+xtest <- as.matrix(dtm)[!split_index, !has_tokens]
+ytest <- data$Label[!split_index]
+
+xgb_mod <- xgboost(xtrain, 
+                   label=
+                     ytrain, 
+                   nrounds=100, 
+                   objective="binary:logistic",
+                   verbose=0)
+
+preds <- predict(xgb_mod, xtest)
+
+# Put results into dataframe for plotting.
+results <- data.frame(pred=preds, actual=ytest)
+
+prediction <- prediction(preds, ytest)
+perf <- performance(prediction, measure = "tpr", x.measure = "fpr")
+
+auc <- performance(prediction, measure = "auc")
+auc <- auc@y.values[[1]]
+
+# Get tpr and fpr
+roc.data <- data.frame(fpr=unlist(perf@x.values),
+                       tpr=unlist(perf@y.values))
+
+# PLot the ROC curve
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.2) +
+    geom_line(aes(y=tpr)) +
+    geom_abline(slope=1, intercept=0, linetype='dashed') +
+    ggtitle("ROC Curve") +
+    ylab('True Positive Rate') +
+    xlab('False Positive Rate')
+
+# Create confusion matrix to check accuracy
+lvl = c('0', '1')
+pred_label <- lvl[as.numeric(preds>0.5)+1]
+confusionMatrix(table(Prediction= pred_label, Actual = ytest), positive="1")
+```
+
+## 2) Random Forest model
+```{r Random Forest}
+
+news<-read.csv("Combined_News_DJIA.csv")
+df<-data.frame(news)
+df<-df[,-c(4:28)]
+str(df)
+names(df)
+df$Label = as.factor(df$Label)
+
+Newdate <- trimws(df$Date)
+HH <- data.frame(mdy(Newdate))
+head(HH)
+header <- "Newdate"
+colnames(HH) <- header
+data <- cbind(df,HH)
+
+library(caTools)
+#Data Partition by order of date
+train <- data[data$Newdate <= "2014-12-31",] 
+train
+test <- data[data$Newdate > "2014-12-31",]
+test
+dim(train); dim(test)
+
+library(randomForest)
+bestmtry<-tuneRF(train, train$Label,stepFactor=1.2,improve=0.01,trace=T,plot=T)
+rf<-randomForest(Label~.,data=train)
+rf
+rf$importance
+varImpPlot(rf)
+pred<-predict(rf,data = test$Label,type="class")
+pred
+library(caret)
+CFM <- confusionMatrix(table(pred,train$Label),positive = "1")
+CFM
+
+#Data partition using traditional approach (80:20)
+library(caTools)
+set.seed(150)
+split = sample.split(df$Date, SplitRatio = 0.80)
+
+train = subset(df, split == TRUE)
+test = subset(df, split == FALSE)
+dim(train); dim(test)
+library(randomForest)
+train$Label<-as.factor(train$Label)
+bestmtry<-tuneRF(train, train$Label,stepFactor=1.2,improve=0.01,trace=T,plot=T)
+rf<-randomForest(Label~.,data=train)
+rf
+rf$importance
+varImpPlot(rf)
+pred<-predict(rf,newdata = test,type="class")
+pred
+library(caret)
+confusionMatrix(table(pred,test$Label),positive = "1")
+```
+
+## 3) Naive Bayes model
+```{r Naivebayes}
+
+library(readr)
+data<-read.csv("Combined_News_DJIA.csv")
+dframe<-data.frame(data)
+dframe<-dframe[,-c(4:28)]
+dframe$Label = as.factor(dframe$Label)
+
+Newdate <- trimws(dframe$Date)
+HH <- data.frame(mdy(Newdate))
+head(HH)
+header <- "Newdate"
+colnames(HH) <- header
+data <- cbind(dframe,HH)
+
+library(caTools)
+#Data Partition by order of date
+train <- data[data$Newdate <= "2014-12-31",] 
+train
+test <- data[data$Newdate > "2014-12-31",]
+test
+
+dim(train)
+dim(test)
+library(e1071)
+library(caret)
+nb<-naiveBayes(Label~.,data=train)
+nb
+pred<-predict(nb,newdata = test$Label)
+CFM <- confusionMatrix(table(pred,test$Label),positive="1")
+CFM
+
+#Data partition using traditional approach (80:20)
+library(caTools)
+set.seed(42)
+split = sample.split(df$Date, SplitRatio = 0.80)
+train1 = subset(dframe, split == TRUE)
+test1 = subset(dframe, split == FALSE)
+dim(train1)
+dim(test1)
+library(e1071)
+library(caret)
+nb1<-naiveBayes(Label~.,data=train1)
+nb1
+pred1<-predict(nb1,newdata = test1)
+CFM1 <-confusionMatrix(table(pred1,test1$Label),positive="1")
+CFM1
+```
